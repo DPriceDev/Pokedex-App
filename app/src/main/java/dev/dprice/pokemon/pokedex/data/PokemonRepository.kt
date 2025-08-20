@@ -1,5 +1,8 @@
 package dev.dprice.pokemon.pokedex.data
 
+import androidx.paging.PagingData
+import kotlinx.coroutines.flow.Flow
+
 data class PokemonSummary(
     val name: String,
 )
@@ -14,7 +17,7 @@ data class Pokemon(
 }
 
 interface PokemonRepository {
-    suspend fun getPokemonSummaries(): List<PokemonSummary>
+    fun getPokemonSummaries(): Flow<PagingData<PokemonSummary>>
 
     suspend fun getPokemon(name: String): Pokemon?
 }

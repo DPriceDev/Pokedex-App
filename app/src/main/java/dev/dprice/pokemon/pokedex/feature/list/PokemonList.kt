@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,12 +24,17 @@ import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import dev.dprice.pokemon.pokedex.data.PokemonSummary
 import dev.dprice.pokemon.pokedex.ui.theme.PokedexTheme
+import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PokemonListScreen(
-    pokemon: List<String>,
+    pokemon: LazyPagingItems<PokemonSummary>,
     modifier: Modifier = Modifier,
     onPokemonClick: (String) -> Unit,
 ) {
@@ -66,7 +70,7 @@ private fun TopBar(
 
 @Composable
 private fun PokemonList(
-    pokemon: List<String>,
+    lazyPokemon: LazyPagingItems<PokemonSummary>,
     modifier: Modifier = Modifier,
     onPokemonClick: (String) -> Unit,
 ) {
@@ -74,13 +78,14 @@ private fun PokemonList(
         contentPadding = WindowInsets.navigationBars.asPaddingValues(),
         modifier = modifier,
     ) {
-        itemsIndexed(pokemon) { index, pokemon ->
+        items(lazyPokemon.itemCount) { index ->
+            val pokemon = lazyPokemon[index]?.name ?: return@items
             PokemonRow(
                 name = pokemon,
                 onClick = { onPokemonClick(pokemon) },
             )
 
-            if (index != pokemon.lastIndex) {
+            if (index != lazyPokemon.itemCount - 1) {
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 )
@@ -114,10 +119,15 @@ private fun PokemonRow(
 @PreviewDynamicColors
 @Composable
 private fun PreviewPokemonList() {
-    val pokemon = listOf("Bulbasaur", "Ivysaur", "Venusaur")
+    val pokemon = listOf(
+        PokemonSummary("Bulbasaur"),
+        PokemonSummary("Ivysaur"),
+        PokemonSummary("Venusaur"),
+    )
+    val lazyPokemon = flowOf(PagingData.from(pokemon)).collectAsLazyPagingItems()
     PokedexTheme {
         PokemonListScreen(
-            pokemon = pokemon,
+            pokemon = lazyPokemon,
             onPokemonClick = { /* no-op for preview */ },
         )
     }

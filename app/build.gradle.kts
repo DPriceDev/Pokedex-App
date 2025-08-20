@@ -73,6 +73,10 @@ dependencies {
 
     implementation(libs.timber)
 
+    implementation(libs.paging.compose)
+    implementation(libs.paging)
+    testImplementation(libs.paging.testing)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.kotlin.test)

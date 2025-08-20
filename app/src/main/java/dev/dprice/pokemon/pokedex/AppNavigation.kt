@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.paging.compose.collectAsLazyPagingItems
 import dev.dprice.pokemon.pokedex.feature.detail.PokemonDetailScreen
 import dev.dprice.pokemon.pokedex.feature.detail.PokemonDetailViewModel
 import dev.dprice.pokemon.pokedex.feature.list.PokemonListScreen
@@ -26,8 +27,10 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         composable("pokemon/list") {
             val viewModel: PokemonListViewModel = hiltViewModel()
 
+            val pokemon = viewModel.pokemon.collectAsLazyPagingItems()
+
             PokemonListScreen(
-                pokemon = viewModel.pokemon,
+                pokemon = pokemon,
                 onPokemonClick = {
                     navController.navigate("pokemon/detail?name=$it")
                 }
