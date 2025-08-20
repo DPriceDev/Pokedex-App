@@ -1,6 +1,5 @@
 # Pokedex App
 
---
 ## Libraries Used
 - Jetpack Compose for UI
 - Android navigation library for navigation
