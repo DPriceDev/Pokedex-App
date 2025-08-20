@@ -27,11 +27,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import dev.dprice.pokemon.pokedex.R
 import dev.dprice.pokemon.pokedex.data.Pokemon
 
 sealed class DetailState {
@@ -89,7 +92,8 @@ private fun PokemonDetail(
 
         Text(
             text = name,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.testTag("detail_title"),
         )
 
         StatList(details, onRetry = onRetry)
@@ -103,7 +107,6 @@ private fun PokemonImage(
     modifier: Modifier = Modifier,
     onRetry: () -> Unit,
 ) {
-    // todo: colour and shape
    Card(
        modifier = modifier,
    ) {
@@ -138,7 +141,6 @@ private fun PokemonImage(
     url: String,
     modifier: Modifier = Modifier,
 ) {
-    // todo: reload on error
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(url)
@@ -155,10 +157,10 @@ private fun PokemonImage(
             Box(
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = "Error loading image")
+                Text(text = stringResource(R.string.error_loading_image))
             }
         },
-        contentDescription = "image of $name",
+        contentDescription = stringResource(R.string.image_of, name),
         modifier = modifier,
         contentScale = ContentScale.FillWidth,
     )
@@ -215,7 +217,9 @@ fun Stats(
         Row {
             Text("Weight")
             Spacer(Modifier.weight(1f))
-            Text(stats.weight.toString()) // todo: find correct measurement
+
+            val weight = stats.weight.toDouble() / 10f
+            Text("$weight kg")
         }
     }
 }
@@ -231,11 +235,11 @@ private fun FetchingError(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            "Could not fetch details", // todo: extract
+            stringResource(R.string.could_not_fetch_details),
             fontStyle = FontStyle.Italic,
         )
         Button(onClick = onRetry) {
-            Text("Retry")
+            Text(stringResource(R.string.retry))
         }
     }
 }
