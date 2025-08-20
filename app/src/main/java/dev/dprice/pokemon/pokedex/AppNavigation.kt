@@ -21,9 +21,14 @@ fun AppNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = NavGraph.PokemonList
+        startDestination = NavGraph.PokemonList,
+        modifier = modifier,
     ) {
-        composable<NavGraph.PokemonList> { PokemonList(modifier) }
-        composable<NavGraph.PokemonDetails> { PokemonDetails(modifier) }
+        composable<NavGraph.PokemonList> {
+            PokemonList(
+                onPokemonClick = { /* todo: pass to viewmodel */ }
+            )
+        }
+        composable<NavGraph.PokemonDetails> { PokemonDetails() }
     }
 }
