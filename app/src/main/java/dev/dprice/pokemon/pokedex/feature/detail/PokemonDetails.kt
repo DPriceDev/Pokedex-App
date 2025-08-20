@@ -1,0 +1,13 @@
+package dev.dprice.pokemon.pokedex.feature.detail
+
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+
+@Composable
+fun PokemonDetails(modifier: Modifier = Modifier) {
+    Text(
+        text = "Pokemon Details",
+        modifier = modifier
+    )
+}
