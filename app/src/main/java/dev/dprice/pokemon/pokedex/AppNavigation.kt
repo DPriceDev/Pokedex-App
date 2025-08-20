@@ -1,8 +1,10 @@
 package dev.dprice.pokemon.pokedex
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -17,7 +19,7 @@ object NavGraph {
     data object PokemonList
     @Serializable
     data class PokemonDetails(
-        val id: String,
+        val name: String,
     )
 }
 
@@ -39,11 +41,13 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         }
         composable<NavGraph.PokemonDetails> {
             val viewModel: PokemonDetailViewModel = hiltViewModel()
+            val details by viewModel.details.collectAsStateWithLifecycle()
 
             PokemonDetailScreen(
                 name = viewModel.name,
-                imageUrl = viewModel.imageUrl,
-                onBack = { navController.navigateUp() }
+                details = details,
+                onBack = { navController.navigateUp() },
+                onRetry = { viewModel.refresh() },
             )
         }
     }

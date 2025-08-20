@@ -1,17 +1,17 @@
 package dev.dprice.pokemon.pokedex.feature.detail
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,22 +25,32 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import dev.dprice.pokemon.pokedex.data.Pokemon
+
+sealed class DetailState {
+    data class Data(
+        val imageUrl: String,
+        val stats: Pokemon.Stats,
+    ) : DetailState()
+    data object Loading : DetailState()
+    data object Error : DetailState()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PokemonDetailScreen(
-    // todo: add loading state
     name: String,
-    imageUrl: String,
+    details: DetailState,
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
+    onRetry: () -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
@@ -49,8 +59,9 @@ fun PokemonDetailScreen(
     ) { innerPadding ->
         PokemonDetail(
             name = name,
-            imageUrl = imageUrl,
+            details = details,
             modifier = Modifier.padding(innerPadding),
+            onRetry = onRetry,
         )
     }
 }
@@ -58,8 +69,9 @@ fun PokemonDetailScreen(
 @Composable
 private fun PokemonDetail(
     name: String,
-    imageUrl: String,
+    details: DetailState,
     modifier: Modifier = Modifier,
+    onRetry: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -70,8 +82,9 @@ private fun PokemonDetail(
     ) {
         PokemonImage(
             name = name,
-            url = imageUrl,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            details = details,
+            modifier = Modifier.padding(horizontal = 16.dp),
+            onRetry = onRetry,
         )
 
         Text(
@@ -79,18 +92,53 @@ private fun PokemonDetail(
             style = MaterialTheme.typography.titleLarge
         )
 
-        Stats(
-
-        )
+        StatList(details, onRetry = onRetry)
     }
 }
 
 @Composable
-fun PokemonImage(
+private fun PokemonImage(
+    name: String,
+    details: DetailState,
+    modifier: Modifier = Modifier,
+    onRetry: () -> Unit,
+) {
+    // todo: colour and shape
+   Card(
+       modifier = modifier,
+   ) {
+       Box(
+           contentAlignment = Alignment.Center,
+           modifier = Modifier
+               .padding(16.dp)
+               .size(256.dp)
+       ) {
+           AnimatedContent(
+               details,
+
+           ) { targetState ->
+               when (targetState) {
+                   is DetailState.Data -> PokemonImage(
+                       name = name,
+                       url = targetState.imageUrl,
+                       modifier = Modifier.fillMaxWidth(),
+                   )
+
+                   DetailState.Error -> FetchingError(onRetry = onRetry)
+                   DetailState.Loading -> CircularProgressIndicator()
+               }
+           }
+       }
+   }
+}
+
+@Composable
+private fun PokemonImage(
     name: String,
     url: String,
     modifier: Modifier = Modifier,
 ) {
+    // todo: reload on error
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(url)
@@ -111,30 +159,80 @@ fun PokemonImage(
             }
         },
         contentDescription = "image of $name",
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-            .widthIn(max = 256.dp)
-            .background(Color.Gray), // todo: change colour and update shape
+        modifier = modifier,
         contentScale = ContentScale.FillWidth,
     )
 }
 
 @Composable
-private fun Stats(
+private fun StatList(
+    details: DetailState,
     modifier: Modifier = Modifier,
+    onRetry: () -> Unit,
 ) {
     Card(
         modifier = modifier,
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-        ) {
-            Row {
-                Text("Weight")
-                Spacer(Modifier.weight(1f))
-                Text("45kg")
+        AnimatedContent(details) { targetState ->
+            when (targetState) {
+                is DetailState.Data -> Stats(
+                    stats = targetState.stats,
+                    modifier = Modifier.padding(16.dp),
+                )
+
+                DetailState.Error -> FetchingError(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    onRetry = onRetry,
+                )
+
+                DetailState.Loading -> Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun Stats(
+    stats: Pokemon.Stats,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row {
+            Text("Weight")
+            Spacer(Modifier.weight(1f))
+            Text(stats.weight.toString()) // todo: find correct measurement
+        }
+    }
+}
+
+@Composable
+private fun FetchingError(
+    modifier: Modifier = Modifier,
+    onRetry: () -> Unit,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            "Could not fetch details", // todo: extract
+            fontStyle = FontStyle.Italic,
+        )
+        Button(onClick = onRetry) {
+            Text("Retry")
         }
     }
 }
