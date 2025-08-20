@@ -15,7 +15,6 @@ class MockPokemonRepository @Inject constructor(): PokemonRepository {
 
     override suspend fun getPokemon(name: String): Pokemon? {
         delay(2.seconds)
-        return null
         return Pokemon(
             name = "Bulbasaur",
             imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",

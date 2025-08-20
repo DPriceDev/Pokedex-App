@@ -114,8 +114,8 @@ private fun PokemonImage(
                .size(256.dp)
        ) {
            AnimatedContent(
-               details,
-
+               targetState = details,
+               contentAlignment = Alignment.Center,
            ) { targetState ->
                when (targetState) {
                    is DetailState.Data -> PokemonImage(
@@ -173,7 +173,10 @@ private fun StatList(
     Card(
         modifier = modifier,
     ) {
-        AnimatedContent(details) { targetState ->
+        AnimatedContent(
+            targetState = details,
+            contentAlignment = Alignment.Center,
+        ) { targetState ->
             when (targetState) {
                 is DetailState.Data -> Stats(
                     stats = targetState.stats,
