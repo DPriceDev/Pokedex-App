@@ -29,7 +29,7 @@ import dev.dprice.pokemon.pokedex.ui.theme.PokedexTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PokemonList(
+fun PokemonListScreen(
     pokemon: List<String>,
     modifier: Modifier = Modifier,
     onPokemonClick: (String) -> Unit,
@@ -40,25 +40,13 @@ fun PokemonList(
         topBar = { TopBar(scrollBehaviour) },
         contentWindowInsets = TopAppBarDefaults.windowInsets,
     ) { innerPadding ->
-        LazyColumn(
-            contentPadding = WindowInsets.navigationBars.asPaddingValues(),
+        PokemonList(
+            pokemon,
             modifier = Modifier
                 .padding(innerPadding)
                 .nestedScroll(scrollBehaviour.nestedScrollConnection),
-        ) {
-            itemsIndexed(pokemon) { index, pokemon ->
-                PokemonRow(
-                    name = pokemon,
-                    onClick = { onPokemonClick(pokemon) },
-                )
-
-                if (index != pokemon.lastIndex) {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    )
-                }
-            }
-        }
+            onPokemonClick = onPokemonClick,
+        )
     }
 }
 
@@ -74,6 +62,31 @@ private fun TopBar(
         scrollBehavior = scrollBehaviour,
         modifier = modifier,
     )
+}
+
+@Composable
+private fun PokemonList(
+    pokemon: List<String>,
+    modifier: Modifier = Modifier,
+    onPokemonClick: (String) -> Unit,
+) {
+    LazyColumn(
+        contentPadding = WindowInsets.navigationBars.asPaddingValues(),
+        modifier = modifier,
+    ) {
+        itemsIndexed(pokemon) { index, pokemon ->
+            PokemonRow(
+                name = pokemon,
+                onClick = { onPokemonClick(pokemon) },
+            )
+
+            if (index != pokemon.lastIndex) {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -103,7 +116,7 @@ private fun PokemonRow(
 private fun PreviewPokemonList() {
     val pokemon = listOf("Bulbasaur", "Ivysaur", "Venusaur")
     PokedexTheme {
-        PokemonList(
+        PokemonListScreen(
             pokemon = pokemon,
             onPokemonClick = { /* no-op for preview */ },
         )
