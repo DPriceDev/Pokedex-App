@@ -1,10 +1,8 @@
-package dev.dprice.pokemon.pokedex
+package dev.dprice.pokemon.pokedex.feature.detail
 
 import androidx.lifecycle.SavedStateHandle
 import dev.dprice.pokemon.pokedex.data.Pokemon
 import dev.dprice.pokemon.pokedex.data.PokemonRepository
-import dev.dprice.pokemon.pokedex.feature.detail.DetailState
-import dev.dprice.pokemon.pokedex.feature.detail.PokemonDetailViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.setMain
@@ -79,7 +77,6 @@ class PokemonDetailViewModelTest {
     companion object {
         private const val POKEMON_NAME = "pikachu"
         private val TEST_POKEMON = Pokemon(
-            name = POKEMON_NAME,
             imageUrl = "https://example.com/image.png",
             stats = Pokemon.Stats(weight = 123)
         )
