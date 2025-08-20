@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +30,7 @@ import dev.dprice.pokemon.pokedex.ui.theme.PokedexTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PokemonList(
+    pokemon: List<String>,
     modifier: Modifier = Modifier,
     onPokemonClick: (String) -> Unit,
 ) {
@@ -44,14 +46,13 @@ fun PokemonList(
                 .padding(innerPadding)
                 .nestedScroll(scrollBehaviour.nestedScrollConnection),
         ) {
-            val count = 100
-            items(count) {
+            itemsIndexed(pokemon) { index, pokemon ->
                 PokemonRow(
-                    name = "Pokemon $it",
-                    onClick = { onPokemonClick("Pokemon $it") }, //todo: pull pokemon name
+                    name = pokemon,
+                    onClick = { onPokemonClick(pokemon) },
                 )
 
-                if (it != count - 1) {
+                if (index != pokemon.lastIndex) {
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     )
@@ -100,8 +101,10 @@ private fun PokemonRow(
 @PreviewDynamicColors
 @Composable
 private fun PreviewPokemonList() {
+    val pokemon = listOf("Bulbasaur", "Ivysaur", "Venusaur")
     PokedexTheme {
         PokemonList(
+            pokemon = pokemon,
             onPokemonClick = { /* no-op for preview */ },
         )
     }
